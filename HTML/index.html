@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Calculation Pro - All-in-One Calculator</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --pink: #fd79a8;
+            --teal: #00cec9;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        /* Sidebar Navigation */
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark), var(--primary));
+            color: white;
+            padding: 25px 15px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .calculator-category {
+            margin-bottom: 30px;
+        }
+        .category-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .calculator-list {
+            list-style: none;
+            padding-left: 20px;
+        }
+        .calculator-list li {
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+        .calculator-list li:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+        /* Main Content Area */
+        .main-content {
+            padding: 30px;
+            background-color: white;
+        }
+        .calculator-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .active-section {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Calculator UI Styles */
+        .calculator-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #eee;
+        }
+        .calculator-card h3 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #5649d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            animation: fadeIn 0.5s;
+        }
+        .result h4 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        /* Special Styling for Health Calculators */
+        .health-calc {
+            border-left-color: var(--pink);
+        }
+        .health-calc h3 {
+            color: var(--pink);
+            border-bottom-color: var(--pink);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+                position: fixed;
+                width: 280px;
+                height: 100vh;
+                z-index: 999;
+                top: 0;
+                left: 0;
+            }
+            .sidebar.active {
+                display: block;
+            }
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1000;
+                background: var(--primary);
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+    
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar">
+            <div class="app-title">Online Calculation Pro</div>
+            
+            <div class="calculator-category">
+                <div class="category-title"><i class="fas fa-calculator"></i> Financial</div>
+                <ul class="calculator-list">
+                    <li onclick="showSection('loan-calc')">Loan Calculator</li>
+                    <li onclick="showSection('compound-interest')">Compound Interest</li>
+                    <li onclick="showSection('savings-calc')">Savings Planner</li>
+                </ul>
+            </div>
+            
+            <div class="calculator-category">
+                <div class="category-title"><i class="fas fa-heartbeat"></i> Health</div>
+                <ul class="calculator-list">
+                    <li onclick="showSection('bmi-calc')">BMI Calculator</li>
+                    <li onclick="showSection('menstrual-tracker')">Menstrual Tracker</li>
+                    <li onclick="showSection('pregnancy-calc')">Pregnancy Delivery Check</li>
+                    <li onclick="showSection('calorie-calc')">Calorie Calculator</li>
+                </ul>
+            </div>
+            
+            <div class="calculator-category">
+                <div class="category-title"><i class="fas fa-graduation-cap"></i> Education</div>
+                <ul class="calculator-list">
+                    <li onclick="showSection('gpa-calc')">GPA Calculator</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Financial Calculators -->
+            <div id="loan-calc" class="calculator-section">
+                <div class="calculator-card">
+                    <h3>Loan Calculator</h3>
+                    <div class="input-group">
+                        <label>Loan Amount (GH₵)</label>
+                        <input type="number" id="loan-amount" placeholder="e.g. 25000">
+                    </div>
+                    <div class="input-group">
+                        <label>Interest Rate (%)</label>
+                        <input type="number" id="interest-rate" placeholder="e.g. 5.5" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Loan Term (years)</label>
+                        <input type="number" id="loan-term" placeholder="e.g. 5">
+                    </div>
+                    <button onclick="calculateLoan()"><i class="fas fa-calculator"></i> Calculate</button>
+                    <div id="loan-result" class="result" style="display:none;">
+                        <h4>Loan Results</h4>
+                        <p>Monthly Payment: <strong><span id="monthly-payment"></span></strong></p>
+                        <p>Total Interest: <strong><span id="total-interest"></span></strong></p>
+                        <p>Total Payment: <strong><span id="total-payment"></span></strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="compound-interest" class="calculator-section">
+                <div class="calculator-card">
+                    <h3>Compound Interest Calculator</h3>
+                    <div class="input-group">
+                        <label>Principal Amount (GH₵)</label>
+                        <input type="number" id="principal" placeholder="e.g. 10000">
+                    </div>
+                    <div class="input-group">
+                        <label>Annual Interest Rate (%)</label>
+                        <input type="number" id="ci-rate" placeholder="e.g. 7.5" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Time Period (years)</label>
+                        <input type="number" id="ci-time" placeholder="e.g. 10">
+                    </div>
+                    <div class="input-group">
+                        <label>Compounding Frequency</label>
+                        <select id="compounding">
+                            <option value="1">Annually</option>
+                            <option value="2">Semi-Annually</option>
+                            <option value="4">Quarterly</option>
+                            <option value="12" selected>Monthly</option>
+                            <option value="365">Daily</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateCompoundInterest()"><i class="fas fa-chart-line"></i> Calculate</button>
+                    <div id="ci-result" class="result" style="display:none;">
+                        <h4>Investment Growth</h4>
+                        <p>Future Value: <strong><span id="future-value"></span></strong></p>
+                        <p>Total Interest Earned: <strong><span id="interest-earned"></span></strong></p>
+                        <p>Effective Annual Rate: <strong><span id="ear"></span>%</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="savings-calc" class="calculator-section">
+                <div class="calculator-card">
+                    <h3>Savings Planner</h3>
+                    <div class="input-group">
+                        <label>Initial Savings (GH₵)</label>
+                        <input type="number" id="initial-savings" placeholder="e.g. 5000">
+                    </div>
+                    <div class="input-group">
+                        <label>Monthly Contribution (GH₵)</label>
+                        <input type="number" id="monthly-contribution" placeholder="e.g. 200">
+                    </div>
+                    <div class="input-group">
+                        <label>Annual Interest Rate (%)</label>
+                        <input type="number" id="savings-rate" placeholder="e.g. 5.0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Years to Grow</label>
+                        <input type="number" id="savings-years" placeholder="e.g. 10">
+                    </div>
+                    <button onclick="calculateSavings()"><i class="fas fa-piggy-bank"></i> Calculate</button>
+                    <div id="savings-result" class="result" style="display:none;">
+                        <h4>Savings Projection</h4>
+                        <p>Future Value: <strong><span id="savings-future-value"></span></strong></p>
+                        <p>Total Contributions: <strong><span id="total-contributions"></span></strong></p>
+                        <p>Interest Earned: <strong><span id="savings-interest-earned"></span></strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Health Calculators -->
+            <div id="bmi-calc" class="calculator-section">
+                <div class="calculator-card health-calc">
+                    <h3>BMI Calculator</h3>
+                    <div class="input-group">
+                        <label>Height (cm)</label>
+                        <input type="number" id="height" placeholder="e.g. 175">
+                    </div>
+                    <div class="input-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="e.g. 70">
+                    </div>
+                    <button onclick="calculateBMI()"><i class="fas fa-weight"></i> Calculate BMI</button>
+                    <div id="bmi-result" class="result health-calc" style="display:none;">
+                        <h4>Your Results</h4>
+                        <p>Your BMI: <strong><span id="bmi-value"></span></strong></p>
+                        <p>Category: <strong><span id="bmi-category"></span></strong></p>
+                        <p>Healthy Weight Range: <strong><span id="healthy-range"></span></strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="menstrual-tracker" class="calculator-section">
+                <div class="calculator-card health-calc">
+                    <h3>Menstrual Cycle Tracker</h3>
+                    <div class="input-group">
+                        <label>Last Period Start Date</label>
+                        <input type="date" id="last-period">
+                    </div>
+                    <div class="input-group">
+                        <label>Average Cycle Length (days)</label>
+                        <input type="number" id="cycle-length" placeholder="e.g. 28" min="21" max="45" value="28">
+                    </div>
+                    <div class="input-group">
+                        <label>Average Period Length (days)</label>
+                        <input type="number" id="period-length" placeholder="e.g. 5" min="2" max="10" value="5">
+                    </div>
+                    <button onclick="calculateMenstrualCycle()"><i class="fas fa-calendar-alt"></i> Calculate</button>
+                    <div id="menstrual-result" class="result health-calc" style="display:none;">
+                        <h4>Cycle Predictions</h4>
+                        <p>Next Period Start: <strong><span id="next-period"></span></strong></p>
+                        <p>Fertile Window: <strong><span id="fertile-window"></span></strong></p>
+                        <p>Ovulation Day: <strong><span id="ovulation-day"></span></strong></p>
+                        <p>Period End Date: <strong><span id="period-end"></span></strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="pregnancy-calc" class="calculator-section">
+                <div class="calculator-card health-calc">
+                    <h3>Pregnancy Delivery Check</h3>
+                    <div class="input-group">
+                        <label>Calculation Method</label>
+                        <select id="pregnancy-method" onchange="togglePregnancyInputs()">
+                            <option value="lmp">Last Menstrual Period (LMP)</option>
+                            <option value="conception">Conception Date</option>
+                            <option value="ultrasound">Ultrasound Date</option>
+                        </select>
+                    </div>
+                    
+                    <div id="lmp-input" class="input-group">
+                        <label>First Day of Last Period</label>
+                        <input type="date" id="lmp-date">
+                    </div>
+                    
+                    <div id="conception-input" class="input-group" style="display:none;">
+                        <label>Conception Date</label>
+                        <input type="date" id="conception-date">
+                    </div>
+                    
+                    <div id="ultrasound-input" class="input-group" style="display:none;">
+                        <label>Ultrasound Date</label>
+                        <input type="date" id="ultrasound-date">
+                        <label>Gestational Age at Ultrasound (weeks)</label>
+                        <input type="number" id="ultrasound-weeks" placeholder="e.g. 12" min="6" max="40" step="0.1">
+                    </div>
+                    
+                    <button onclick="calculatePregnancy()"><i class="fas fa-baby"></i> Calculate Due Date</button>
+                    
+                    <div id="pregnancy-result" class="result health-calc" style="display:none;">
+                        <h4>Pregnancy Timeline</h4>
+                        <p>Estimated Due Date: <strong><span id="due-date"></span></strong></p>
+                        <p>Current Gestational Age: <strong><span id="current-ga"></span></strong></p>
+                        <p>Trimester: <strong><span id="trimester"></span></strong></p>
+                        <p>Key Milestones:</p>
+                        <ul id="milestones" style="padding-left: 20px; margin-top: 5px;">
+                            <!-- Will be filled by JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="calorie-calc" class="calculator-section">
+                <div class="calculator-card health-calc">
+                    <h3>Calorie Calculator</h3>
+                    <div class="input-group">
+                        <label>Gender</label>
+                        <select id="gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Age (years)</label>
+                        <input type="number" id="age" placeholder="e.g. 30" min="15" max="120">
+                    </div>
+                    <div class="input-group">
+                        <label>Height (cm)</label>
+                        <input type="number" id="calorie-height" placeholder="e.g. 175">
+                    </div>
+                    <div class="input-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="calorie-weight" placeholder="e.g. 70">
+                    </div>
+                    <div class="input-group">
+                        <label>Activity Level</label>
+                        <select id="activity-level">
+                            <option value="1.2">Sedentary (little or no exercise)</option>
+                            <option value="1.375">Lightly active (light exercise 1-3 days/week)</option>
+                            <option value="1.55" selected>Moderately active (moderate exercise 3-5 days/week)</option>
+                            <option value="1.725">Very active (hard exercise 6-7 days/week)</option>
+                            <option value="1.9">Extra active (very hard exercise & physical job)</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateCalories()"><i class="fas fa-utensils"></i> Calculate</button>
+                    <div id="calorie-result" class="result health-calc" style="display:none;">
+                        <h4>Daily Calorie Needs</h4>
+                        <p>Maintenance Calories: <strong><span id="maintenance-calories"></span></strong></p>
+                        <p>Weight Loss (0.5kg/week): <strong><span id="weight-loss-calories"></span></strong></p>
+                        <p>Weight Gain (0.5kg/week): <strong><span id="weight-gain-calories"></span></strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Education Calculators -->
+            <div id="gpa-calc" class="calculator-section active-section">
+                <div class="calculator-card">
+                    <h3>GPA Calculator</h3>
+                    <div id="course-inputs">
+                        <div class="course-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <div class="input-group" style="flex: 2;">
+                                <label>Course Name</label>
+                                <input type="text" placeholder="e.g. Mathematics">
+                            </div>
+                            <div class="input-group" style="flex: 1;">
+                                <label>Grade</label>
+                                <select class="grade-select">
+                                    <option value="4.0">A (4.0)</option>
+                                    <option value="3.7">A- (3.7)</option>
+                                    <option value="3.3">B+ (3.3)</option>
+                                    <option value="3.0" selected>B (3.0)</option>
+                                    <option value="2.7">B- (2.7)</option>
+                                    <option value="2.3">C+ (2.3)</option>
+                                    <option value="2.0">C (2.0)</option>
+                                    <option value="1.7">C- (1.7)</option>
+                                    <option value="1.3">D+ (1.3)</option>
+                                    <option value="1.0">D (1.0)</option>
+                                    <option value="0.0">F (0.0)</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="flex: 1;">
+                                <label>Credits</label>
+                                <input type="number" placeholder="e.g. 3" min="0.5" max="10" step="0.5" value="3">
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="addCourse()" style="margin-right:10px;"><i class="fas fa-plus"></i> Add Course</button>
+                    <button onclick="calculateGPA()"><i class="fas fa-graduation-cap"></i> Calculate GPA</button>
+                    <div id="gpa-result" class="result" style="display:none;">
+                        <h4>Academic Results</h4>
+                        <p>Your GPA: <strong><span id="gpa-value"></span></strong></p>
+                        <p>Total Credits: <strong><span id="total-credits"></span></strong></p>
+                        <p>Letter Grade Equivalent: <strong><span id="letter-grade"></span></strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        
+        // Show selected calculator section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.calculator-section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            
+            // Show selected section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active-section');
+            }
+            
+            // Close mobile sidebar if open
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Loan Calculator Logic
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loan-amount').value);
+            const rate = parseFloat(document.getElementById('interest-rate').value) / 100 / 12;
+            const term = parseFloat(document.getElementById('loan-term').value) * 12;
+            
+            const x = Math.pow(1 + rate, term);
+            const monthly = (amount * x * rate) / (x - 1);
+            const totalInterest = (monthly * term) - amount;
+            const totalPayment = monthly * term;
+            
+            document.getElementById('monthly-payment').textContent = 'GH₵' + monthly.toFixed(2);
+            document.getElementById('total-interest').textContent = 'GH₵' + totalInterest.toFixed(2);
+            document.getElementById('total-payment').textContent = 'GH₵' + totalPayment.toFixed(2);
+            document.getElementById('loan-result').style.display = 'block';
+        }
+        
+        // Compound Interest Calculator
+        function calculateCompoundInterest() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('ci-rate').value) / 100;
+            const time = parseFloat(document.getElementById('ci-time').value);
+            const compounding = parseInt(document.getElementById('compounding').value);
+            
+            const amount = principal * Math.pow(1 + (rate / compounding), compounding * time);
+            const interest = amount - principal;
+            const ear = (Math.pow(1 + (rate / compounding), compounding) - 1) * 100;
+            
+            document.getElementById('future-value').textContent = 'GH₵' + amount.toFixed(2);
+            document.getElementById('interest-earned').textContent = 'GH₵' + interest.toFixed(2);
+            document.getElementById('ear').textContent = ear.toFixed(2);
+            document.getElementById('ci-result').style.display = 'block';
+        }
+        
+        // Savings Planner Calculator
+        function calculateSavings() {
+            const initial = parseFloat(document.getElementById('initial-savings').value) || 0;
+            const monthly = parseFloat(document.getElementById('monthly-contribution').value) || 0;
+            const rate = parseFloat(document.getElementById('savings-rate').value) / 100 / 12;
+            const months = parseFloat(document.getElementById('savings-years').value) * 12;
+            
+            let futureValue = initial;
+            for (let i = 0; i < months; i++) {
+                futureValue = (futureValue + monthly) * (1 + rate);
+            }
+            
+            const totalContributions = initial + (monthly * months);
+            const interestEarned = futureValue - totalContributions;
+            
+            document.getElementById('savings-future-value').textContent = 'GH₵' + futureValue.toFixed(2);
+            document.getElementById('total-contributions').textContent = 'GH₵' + totalContributions.toFixed(2);
+            document.getElementById('savings-interest-earned').textContent = 'GH₵' + interestEarned.toFixed(2);
+            document.getElementById('savings-result').style.display = 'block';
+        }
+        
+        // BMI Calculator Logic
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value) / 100; // convert to meters
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            const bmi = weight / (height * height);
+            let category;
+            
+            if (bmi < 18.5) category = "Underweight";
+            else if (bmi < 25) category = "Normal weight";
+            else if (bmi < 30) category = "Overweight";
+            else category = "Obese";
+            
+            const healthyMin = (18.5 * (height * height)).toFixed(1);
+            const healthyMax = (25 * (height * height)).toFixed(1);
+            
+            document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+            document.getElementById('bmi-category').textContent = category;
+            document.getElementById('healthy-range').textContent = `${healthyMin}kg - ${healthyMax}kg`;
+            document.getElementById('bmi-result').style.display = 'block';
+        }
+        
+        // Menstrual Cycle Calculator
+        function calculateMenstrualCycle() {
+            const lastPeriod = new Date(document.getElementById('last-period').value);
+            const cycleLength = parseInt(document.getElementById('cycle-length').value);
+            const periodLength = parseInt(document.getElementById('period-length').value);
+            
+            if (isNaN(lastPeriod.getTime())) {
+                alert("Please enter a valid last period date");
+                return;
+            }
+            
+            // Calculate next period
+            const nextPeriod = new Date(lastPeriod);
+            nextPeriod.setDate(nextPeriod.getDate() + cycleLength);
+            
+            // Calculate ovulation (typically 14 days before next period)
+            const ovulationDate = new Date(nextPeriod);
+            ovulationDate.setDate(ovulationDate.getDate() - 14);
+            
+            // Fertile window (5 days before ovulation to 1 day after)
+            const fertileStart = new Date(ovulationDate);
+            fertileStart.setDate(fertileStart.getDate() - 5);
+            const fertileEnd = new Date(ovulationDate);
+            fertileEnd.setDate(fertileEnd.getDate() + 1);
+            
+            // Period end date
+            const periodEnd = new Date(lastPeriod);
+            periodEnd.setDate(periodEnd.getDate() + periodLength);
+            
+            // Format dates
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            
+            document.getElementById('next-period').textContent = nextPeriod.toLocaleDateString('en-US', options);
+            document.getElementById('fertile-window').textContent = 
+                `${fertileStart.toLocaleDateString('en-US', options)} to ${fertileEnd.toLocaleDateString('en-US', options)}`;
+            document.getElementById('ovulation-day').textContent = ovulationDate.toLocaleDateString('en-US', options);
+            document.getElementById('period-end').textContent = periodEnd.toLocaleDateString('en-US', options);
+            document.getElementById('menstrual-result').style.display = 'block';
+        }
+        
+        // Pregnancy Calculator
+        function togglePregnancyInputs() {
+            const method = document.getElementById('pregnancy-method').value;
+            document.getElementById('lmp-input').style.display = method === 'lmp' ? 'block' : 'none';
+            document.getElementById('conception-input').style.display = method === 'conception' ? 'block' : 'none';
+            document.getElementById('ultrasound-input').style.display = method === 'ultrasound' ? 'block' : 'none';
+        }
+        
+        function calculatePregnancy() {
+            const method = document.getElementById('pregnancy-method').value;
+            let dueDate, conceptionDate;
+            const today = new Date();
+            
+            if (method === 'lmp') {
+                const lmpDate = new Date(document.getElementById('lmp-date').value);
+                if (isNaN(lmpDate.getTime())) {
+                    alert("Please enter a valid last menstrual period date");
+                    return;
+                }
+                // Naegele's rule: add 1 year, subtract 3 months, add 7 days
+                dueDate = new Date(lmpDate);
+                dueDate.setFullYear(dueDate.getFullYear() + 1);
+                dueDate.setMonth(dueDate.getMonth() - 3);
+                dueDate.setDate(dueDate.getDate() + 7);
+                
+                conceptionDate = new Date(lmpDate);
+                conceptionDate.setDate(conceptionDate.getDate() + 14); // Typically 2 weeks after LMP
+            } 
+            else if (method === 'conception') {
+                conceptionDate = new Date(document.getElementById('conception-date').value);
+                if (isNaN(conceptionDate.getTime())) {
+                    alert("Please enter a valid conception date");
+                    return;
+                }
+                dueDate = new Date(conceptionDate);
+                dueDate.setDate(dueDate.getDate() + 266); // 38 weeks from conception
+            }
+            else if (method === 'ultrasound') {
+                const usDate = new Date(document.getElementById('ultrasound-date').value);
+                const usWeeks = parseFloat(document.getElementById('ultrasound-weeks').value);
+                
+                if (isNaN(usDate.getTime()) || isNaN(usWeeks)) {
+                    alert("Please enter valid ultrasound details");
+                    return;
+                }
+                
+                // Calculate conception date (ultrasound age minus 2 weeks)
+                conceptionDate = new Date(usDate);
+                conceptionDate.setDate(conceptionDate.getDate() - (usWeeks * 7) + 14);
+                
+                dueDate = new Date(conceptionDate);
+                dueDate.setDate(dueDate.getDate() + 266);
+            }
+            
+            // Calculate current gestational age
+            const diffTime = Math.abs(today - conceptionDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
+            
+            // Determine trimester
+            let trimester;
+            if (weeks < 13) trimester = "First Trimester (1-12 weeks)";
+            else if (weeks < 28) trimester = "Second Trimester (13-27 weeks)";
+            else trimester = "Third Trimester (28-40 weeks)";
+            
+            // Key milestones
+            const milestones = [
+                { week: 6, text: "Heartbeat detectable by ultrasound" },
+                { week: 12, text: "Risk of miscarriage decreases significantly" },
+                { week: 20, text: "Anatomy scan, may learn baby's sex" },
+                { week: 24, text: "Viability - baby could survive outside womb with medical help" },
+                { week: 28, text: "Third trimester begins, start kick counts" },
+                { week: 36, text: "Baby may 'drop' into birth position" }
+            ];
+            
+            // Format dates
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            
+            document.getElementById('due-date').textContent = dueDate.toLocaleDateString('en-US', options);
+            document.getElementById('current-ga').textContent = `${weeks} weeks and ${days} days`;
+            document.getElementById('trimester').textContent = trimester;
+            
+            // Display relevant milestones
+            const milestonesList = document.getElementById('milestones');
+            milestonesList.innerHTML = '';
+            
+            milestones.forEach(milestone => {
+                if (weeks <= milestone.week + 2) { // Show upcoming milestones
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>Week ${milestone.week}:</strong> ${milestone.text}`;
+                    milestonesList.appendChild(li);
+                }
+            });
+            
+            document.getElementById('pregnancy-result').style.display = 'block';
+        }
+        
+        // Calorie Calculator
+        function calculateCalories() {
+            const gender = document.getElementById('gender').value;
+            const age = parseFloat(document.getElementById('age').value);
+            const height = parseFloat(document.getElementById('calorie-height').value);
+            const weight = parseFloat(document.getElementById('calorie-weight').value);
+            const activityLevel = parseFloat(document.getElementById('activity-level').value);
+            
+            // Mifflin-St Jeor Equation
+            let bmr;
+            if (gender === 'male') {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+            
+            const maintenance = Math.round(bmr * activityLevel);
+            const weightLoss = maintenance - 500;
+            const weightGain = maintenance + 500;
+            
+            document.getElementById('maintenance-calories').textContent = maintenance + ' calories/day';
+            document.getElementById('weight-loss-calories').textContent = weightLoss + ' calories/day';
+            document.getElementById('weight-gain-calories').textContent = weightGain + ' calories/day';
+            document.getElementById('calorie-result').style.display = 'block';
+        }
+        
+        // GPA Calculator Logic
+        function addCourse() {
+            const container = document.getElementById('course-inputs');
+            const newRow = document.createElement('div');
+            newRow.className = 'course-row';
+            newRow.style.display = 'flex';
+            newRow.style.gap = '15px';
+            newRow.style.marginBottom = '15px';
+            newRow.innerHTML = `
+                <div class="input-group" style="flex: 2;">
+                    <input type="text" placeholder="e.g. Mathematics">
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <select class="grade-select">
+                        <option value="4.0">A (4.0)</option>
+                        <option value="3.7">A- (3.7)</option>
+                        <option value="3.3">B+ (3.3)</option>
+                        <option value="3.0" selected>B (3.0)</option>
+                        <option value="2.7">B- (2.7)</option>
+                        <option value="2.3">C+ (2.3)</option>
+                        <option value="2.0">C (2.0)</option>
+                        <option value="1.7">C- (1.7)</option>
+                        <option value="1.3">D+ (1.3)</option>
+                        <option value="1.0">D (1.0)</option>
+                        <option value="0.0">F (0.0)</option>
+                    </select>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <input type="number" placeholder="e.g. 3" min="0.5" max="10" step="0.5" value="3">
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
+        
+        function calculateGPA() {
+            const rows = document.querySelectorAll('.course-row');
+            let totalPoints = 0;
+            let totalCredits = 0;
+            
+            rows.forEach(row => {
+                const grade = parseFloat(row.querySelector('.grade-select').value);
+                const credits = parseFloat(row.querySelector('input[type="number"]').value);
+                
+                if (!isNaN(grade) && !isNaN(credits)) {
+                    totalPoints += grade * credits;
+                    totalCredits += credits;
+                }
+            });
+            
+            if (totalCredits === 0) {
+                alert("Please enter at least one valid course");
+                return;
+            }
+            
+            const gpa = totalPoints / totalCredits;
+            
+            // Determine letter grade
+            let letterGrade;
+            if (gpa >= 3.7) letterGrade = "A";
+            else if (gpa >= 3.3) letterGrade = "A-";
+            else if (gpa >= 3.0) letterGrade = "B+";
+            else if (gpa >= 2.7) letterGrade = "B";
+            else if (gpa >= 2.3) letterGrade = "B-";
+            else if (gpa >= 2.0) letterGrade = "C+";
+            else if (gpa >= 1.7) letterGrade = "C";
+            else if (gpa >= 1.3) letterGrade = "C-";
+            else if (gpa >= 1.0) letterGrade = "D";
+            else letterGrade = "F";
+            
+            document.getElementById('gpa-value').textContent = gpa.toFixed(2);
+            document.getElementById('total-credits').textContent = totalCredits;
+            document.getElementById('letter-grade').textContent = letterGrade;
+            document.getElementById('gpa-result').style.display = 'block';
+        }
+        
+        // Initialize with GPA calculator visible
+        window.onload = function() {
+            showSection('gpa-calc');
+        };
+    </script>
+</body>
+</html>
